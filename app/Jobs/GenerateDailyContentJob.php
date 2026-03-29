@@ -136,7 +136,7 @@ class GenerateDailyContentJob implements ShouldQueue
             Tone: Executive, sharp, authoritative.",
 
             default    => "Write a LinkedIn post for SCRYPT about {$pillar->name}. {$context}{$newsContext}",
-        };
+        } . "\n\nSCRYPT CORE KNOWLEDGE BASE (Strictly adhere to these facts):\n" . config('scrypt.knowledge_base', '');
     }
 
 

@@ -110,7 +110,7 @@ class ContentController extends Controller
                 Tone: Executive, sharp, authoritative.",
 
             default    => "Write a LinkedIn post for SCRYPT about {$pillar->name}. {$pillarContext}",
-        };
+        } . "\n\nSCRYPT CORE KNOWLEDGE BASE (Strictly adhere to these facts):\n" . config('scrypt.knowledge_base', '');
     }
     public function schedule(Request $request)
 {
