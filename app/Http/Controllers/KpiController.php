@@ -60,6 +60,12 @@ class KpiController extends Controller
             'closed'            => Lead::where('status', 'closed')->count(),
         ];
 
+        // Cost Per Lead (CPL) Calculation
+        // Assuming average of $0.05 per API request across models (blended rate)
+        $totalRequests = AiProvider::sum('requests_made');
+        $estimatedCost = $totalRequests * 0.05;
+        $cpl           = $funnel['leads_total'] > 0 ? $estimatedCost / $funnel['leads_total'] : 0;
+
         // Weekly content generation (last 4 weeks)
         $weeklyContent = collect(range(3, 0))->map(function ($weeksAgo) {
             $start = now()->subWeeks($weeksAgo)->startOfWeek();
@@ -73,7 +79,8 @@ class KpiController extends Controller
         return view('kpi', compact(
             'contentByType', 'contentByStatus', 'contentByProvider', 'contentByPillar',
             'leadsByStatus', 'leadsBySegment', 'leadsBySource',
-            'publishStats', 'aiProviders', 'funnel', 'weeklyContent'
+            'publishStats', 'aiProviders', 'funnel', 'weeklyContent',
+            'estimatedCost', 'cpl'
         ));
     }
 }

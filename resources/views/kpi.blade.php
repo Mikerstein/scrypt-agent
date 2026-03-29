@@ -7,10 +7,19 @@
 
 @section('content')
 
-{{-- Conversion funnel --}}
-<div class="card p-6 mb-6">
-    <div class="text-sm font-semibold mb-5" style="color:var(--text-header)">Conversion Funnel</div>
-    <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+{{-- CPL & Funnel Header Strip --}}
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+    {{-- CPL Card --}}
+    <div class="card p-6 flex flex-col justify-center" style="background: linear-gradient(135deg, rgba(255,107,53,0.1) 0%, rgba(255,107,53,0) 100%); border-color: rgba(255,107,53,0.3)">
+        <div class="text-sm font-semibold mb-1" style="color:var(--text-header)">Cost Per Lead (CPL)</div>
+        <div class="text-3xl font-bold text-orange-400 mb-2">${{ number_format($cpl, 2) }}</div>
+        <div class="text-xs text-muted">Based on ${{ number_format($estimatedCost, 2) }} est. AI cost across {{ $funnel['leads_total'] }} leads.</div>
+    </div>
+
+    {{-- Conversion funnel --}}
+    <div class="card p-6 lg:col-span-3">
+        <div class="text-sm font-semibold mb-4" style="color:var(--text-header)">Conversion Funnel</div>
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
         @php
         $funnelSteps = [
             ['label' => 'Generated',  'value' => $funnel['content_generated'], 'color' => '#FF6B35'],
@@ -33,6 +42,7 @@
         </div>
         @endforeach
     </div>
+</div>
 </div>
 
 {{-- Row 1: Content stats --}}

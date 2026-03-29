@@ -24,11 +24,12 @@ class ContentController extends Controller
         $request->validate([
             'pillar_id' => 'required|exists:content_pillars,id',
             'type'      => 'required|in:linkedin,twitter,email',
-            'provider'  => 'required|in:groq,anthropic,openai',
+            'provider'  => 'required|in:groq,anthropic,openai,gemini',
+            'segment'   => 'required|in:hedge_fund,bank,market_maker',
         ]);
 
         $pillar   = ContentPillar::findOrFail($request->pillar_id);
-        $prompt   = $this->buildPrompt($pillar, $request->type);
+        $prompt   = $this->buildPrompt($pillar, $request->type, $request->segment);
         $ai       = AIProviderFactory::make($request->provider);
         $content  = $ai->generate($prompt, 1000);
 
@@ -53,27 +54,37 @@ class ContentController extends Controller
         return back()->with('success', 'Status updated to ' . $request->status);
     }
 
-    private function buildPrompt(ContentPillar $pillar, string $type): string
+    private function buildPrompt(ContentPillar $pillar, string $type, string $segment): string
     {
+        $segmentFocus = match($segment) {
+            'hedge_fund'   => "Target Audience: Hedge Funds. Focus heavily on execution quality, tight spreads, DeFi yield strategies, and deep liquidity.",
+            'bank'         => "Target Audience: Banks. Focus heavily on regulatory compliance (FINMA), white-labeling APIs, risk management, and security.",
+            'market_maker' => "Target Audience: Market Makers. Focus heavily on zero-latency infrastructure, API stability, and robust connectivity.",
+            default        => "Target Audience: Institutional Investors."
+        };
+
         $pillarContext = "Content pillar: {$pillar->name}. {$pillar->description}. CTA: {$pillar->primary_cta}";
 
         return match($type) {
-            'linkedin' => "Write a high-impact LinkedIn post for SCRYPT's institutional audience.
+            'linkedin' => "Write a high-impact LinkedIn post for SCRYPT.
+                {$segmentFocus}
                 {$pillarContext}
                 Requirements: Sharp hook in line 1. 3-4 paragraphs max. 1-2 real SCRYPT data points 
                 (\$25B+ volume, 300+ clients, 40+ jurisdictions, FINMA/VQF licensed, Gauntlet partnership).
                 End with CTA. Institutional tone. No emojis. No retail language. Max 280 words.",
 
             'twitter'  => "Write a 5-tweet thread for SCRYPT on X (Twitter).
+                {$segmentFocus}
                 {$pillarContext}
                 Requirements: Tweet 1 is a bold hook. Tweets 2-4 are data-driven insights.
                 Tweet 5 is the CTA. Each tweet under 280 chars. Max 2 hashtags total. Sharp, institutional tone.",
 
             'email'    => "Write an institutional email newsletter for SCRYPT.
+                {$segmentFocus}
                 {$pillarContext}
                 Requirements: Include subject line. 400-500 words. 
                 Structure: context → problem → SCRYPT solution → data → CTA.
-                Authoritative tone. Target: CFOs, treasurers, portfolio managers at banks and hedge funds.",
+                Authoritative tone. No fluff.",
 
             default    => "Write a LinkedIn post for SCRYPT about {$pillar->name}. {$pillarContext}",
         };

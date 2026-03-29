@@ -18,6 +18,14 @@
                 </select>
             </div>
             <div>
+                <label class="text-xs text-muted mb-1.5 block">Target Segment</label>
+                <select name="segment" class="input">
+                    <option value="hedge_fund">Hedge Funds</option>
+                    <option value="bank">Banks</option>
+                    <option value="market_maker">Market Makers</option>
+                </select>
+            </div>
+            <div>
                 <label class="text-xs text-muted mb-1.5 block">Content Type</label>
                 <select name="type" class="input">
                     <option value="linkedin">LinkedIn Post</option>

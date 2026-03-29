@@ -44,8 +44,14 @@ class GenerateDailyContentJob implements ShouldQueue
 
         foreach ($types as $type) {
             try {
+                $segment = match($this->dayOfWeek) {
+                    'Monday', 'Tuesday'              => 'hedge_fund',
+                    'Wednesday', 'Thursday'          => 'bank',
+                    'Friday', 'Saturday', 'Sunday'   => 'market_maker',
+                    default                          => 'hedge_fund',
+                };
                 $optRules = $this->getOptimizationRules($type);
-                $prompt   = $this->buildPrompt($pillar, $type, $newsContext . $optRules);
+                $prompt   = $this->buildPrompt($pillar, $type, $segment, $newsContext . $optRules);
                 $content  = $ai->generate($prompt, 1000);
 
                 ContentItem::create([
@@ -66,13 +72,21 @@ class GenerateDailyContentJob implements ShouldQueue
         }
     }
 
-    private function buildPrompt(ContentPillar $pillar, string $type, string $newsContext = ''): string
+    private function buildPrompt(ContentPillar $pillar, string $type, string $segment, string $newsContext = ''): string
     {
+        $segmentFocus = match($segment) {
+            'hedge_fund'   => "Target Audience: Hedge Funds. Focus heavily on execution quality, tight spreads, DeFi yield strategies, and deep liquidity.",
+            'bank'         => "Target Audience: Banks. Focus heavily on regulatory compliance (FINMA), white-labeling APIs, risk management, and security.",
+            'market_maker' => "Target Audience: Market Makers. Focus heavily on zero-latency infrastructure, API stability, and robust connectivity.",
+            default        => "Target Audience: Institutional Investors."
+        };
+
         $day     = $this->dayOfWeek;
         $context = "Content pillar: {$pillar->name}. {$pillar->description}. CTA: {$pillar->primary_cta}";
 
         return match($type) {
-            'linkedin' => "Write a high-impact LinkedIn post for SCRYPT's institutional audience.
+            'linkedin' => "Write a high-impact LinkedIn post for SCRYPT.
+            {$segmentFocus}
             Today is {$day} — {$context}{$newsContext}
             Requirements: Sharp hook in line 1. 3-4 paragraphs max.
             Include 1-2 real SCRYPT data points (\$25B+ volume, 300+ clients,
@@ -82,6 +96,7 @@ class GenerateDailyContentJob implements ShouldQueue
             End with CTA. Institutional tone. No emojis. No retail language. Max 280 words.",
 
             'twitter'  => "Write a 5-tweet thread for SCRYPT on X (Twitter).
+            {$segmentFocus}
             Today is {$day} — {$context}{$newsContext}
             Requirements: Tweet 1 is a bold hook that stops the scroll.
             Tweets 2-4 are data-driven insights, one point each.
@@ -90,16 +105,17 @@ class GenerateDailyContentJob implements ShouldQueue
             Max 2 hashtags in the entire thread. Sharp, institutional tone.",
 
             'email'    => "Write an institutional email newsletter for SCRYPT.
+            {$segmentFocus}
             Today is {$day} — {$context}{$newsContext}
             Requirements: Write a compelling subject line first (prefix with 'Subject: ').
             Then 400-500 words. Structure: context → problem → SCRYPT solution → data → CTA.
             If today's market context is relevant, open with it as the news hook.
-            Target audience: CFOs, treasurers, portfolio managers at banks and hedge funds.
             Authoritative tone. No fluff.",
 
             default    => "Write a LinkedIn post for SCRYPT about {$pillar->name}. {$context}{$newsContext}",
         };
     }
+
 
     private function getNewsContext(): string
     {

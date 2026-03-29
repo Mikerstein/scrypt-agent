@@ -83,14 +83,15 @@ class GenerateWeeklyReport extends Command
             - Qualified: {$qualifiedLeads} | Meetings: {$meetings} | Closed: {$closedDeals}
             - Segments: {$segmentBreakdown}
 
-            Provide:
-            1. PERFORMANCE SUMMARY (3-4 sentences, data-driven)
-            2. TOP 3 WINS this week
-            3. TOP 3 PRIORITIES for next week
-            4. ONE contrarian insight or risk to watch
+            You MUST output this as a formal, structured Markdown document titled \"## Weekly Growth & Optimization Report\".
             
-            Format clearly with headers. Institutional tone. Be specific, not generic.
-            Base recommendations on the actual numbers above.";
+            Provide the following exact sections:
+            1. PERFORMANCE SUMMARY: 3-4 data-driven sentences.
+            2. TOP 3 WINS: Bullet points based on the numbers.
+            3. NEXT WEEK OPTIMIZATION PLAN: Explicitly format this as an actionable, step-by-step checklist of what to change, what to double down on, and which segment to target.
+            4. COST PER LEAD ANALYSIS: Estimate efficiency based on AI processing vs total leads.
+            
+            Institutional tone. Concrete, data-based recommendations only.";
 
         try {
             $ai     = AIProviderFactory::make($this->option('provider'));
