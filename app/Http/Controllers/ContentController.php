@@ -23,7 +23,7 @@ class ContentController extends Controller
     {
         $request->validate([
             'pillar_id' => 'required|exists:content_pillars,id',
-            'type'      => 'required|in:linkedin,twitter,email',
+            'type'      => 'required|in:linkedin,twitter,email,case_study,strategy_deck,guide',
             'provider'  => 'required|in:groq,anthropic,openai,gemini',
             'segment'   => 'required|in:hedge_fund,bank,market_maker',
         ]);
@@ -86,8 +86,31 @@ class ContentController extends Controller
                 Structure: context → problem → SCRYPT solution → data → CTA.
                 Authoritative tone. No fluff.",
 
+            'case_study' => "Write an institutional case study for SCRYPT.
+                {$segmentFocus}
+                {$pillarContext}
+                Requirements: Format as a Markdown document. Structure: 
+                ## The Problem
+                ## The SCRYPT Solution
+                ## The Outcome
+                Include real data points (\$25B+ volume, 300+ clients, 40+ jurisdictions, Gauntlet DeFi integration).
+                Authoritative, data-driven tone.",
+
+            'strategy_deck' => "Write the outline and narrative copy for an institutional Strategy Deck regarding SCRYPT.
+                {$segmentFocus}
+                {$pillarContext}
+                Requirements: Format as a Markdown document with 'Slide 1:', 'Slide 2:', etc. 
+                Highlight FINMA regulation, deep liquidity, and execution quality. 
+                Include a clear CTA for allocations or API integration.",
+
+            'guide' => "Write a comprehensive downloadable guide for SCRYPT.
+                {$segmentFocus}
+                {$pillarContext}
+                Requirements: Format as a Markdown document. Provide deep, actionable insights on institutional crypto, regulation (FINMA/VQF), and market structure.
+                Tone: Executive, sharp, authoritative.",
+
             default    => "Write a LinkedIn post for SCRYPT about {$pillar->name}. {$pillarContext}",
-        };
+        } . "\n\nSCRYPT CORE KNOWLEDGE BASE (Strictly adhere to these facts):\n" . config('scrypt.knowledge_base', '');
     }
     public function schedule(Request $request)
 {
