@@ -6,13 +6,13 @@ use App\Models\ScheduledPost;
 
 // Scrape market news daily at 6am — one hour before content generation
 Schedule::call(function () {
-    \App\Jobs\ScrapeMarketNewsJob::dispatch(config('ai.default'));
+    \App\Jobs\ScrapeMarketNewsJob::dispatch(config('ai.default'))->onQueue('research');
 })->dailyAt('06:00')->name('scrape-market-news')->withoutOverlapping();
 
 // Generate content daily at 7am — picks today's pillar automatically
 Schedule::call(function () {
     $day = now()->format('l'); // Monday, Tuesday...
-    GenerateDailyContentJob::dispatch($day, config('ai.default'));
+    GenerateDailyContentJob::dispatch($day, config('ai.default'))->onQueue('content');
 })->dailyAt('07:00')->name('generate-daily-content')->withoutOverlapping();
 
 // Publish approved scheduled posts every 15 minutes
@@ -22,7 +22,7 @@ Schedule::call(function () {
         ->get();
 
     foreach ($duePosts as $post) {
-        PublishScheduledPostJob::dispatch($post->id);
+        PublishScheduledPostJob::dispatch($post->id)->onQueue('default');
     }
 })->everyFifteenMinutes()->name('publish-scheduled-posts')->withoutOverlapping();
 
@@ -34,5 +34,5 @@ Schedule::command('scrypt:weekly-report --provider=groq')
 
     // Engagement scan every 4 hours
 Schedule::call(function () {
-    \App\Jobs\AutonomousEngagementJob::dispatch(config('ai.default'));
+    \App\Jobs\AutonomousEngagementJob::dispatch(config('ai.default'))->onQueue('engagement');
 })->everySixHours()->name('autonomous-engagement')->withoutOverlapping();

@@ -44,7 +44,12 @@ class GenerateDailyContentJob implements ShouldQueue
 
         foreach ($types as $type) {
             try {
-                $segment  = collect(['hedge_fund', 'bank', 'market_maker'])->random();
+                $segment = match($this->dayOfWeek) {
+                    'Monday', 'Tuesday'              => 'hedge_fund',
+                    'Wednesday', 'Thursday'          => 'bank',
+                    'Friday', 'Saturday', 'Sunday'   => 'market_maker',
+                    default                          => 'hedge_fund',
+                };
                 $optRules = $this->getOptimizationRules($type);
                 $prompt   = $this->buildPrompt($pillar, $type, $segment, $newsContext . $optRules);
                 $content  = $ai->generate($prompt, 1000);
