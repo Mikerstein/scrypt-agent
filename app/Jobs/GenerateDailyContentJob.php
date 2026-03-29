@@ -37,7 +37,7 @@ class GenerateDailyContentJob implements ShouldQueue
         Log::info("Generating daily content for pillar: {$pillar->name}");
 
         $ai    = AIProviderFactory::make($this->provider);
-        $types = ['linkedin', 'twitter', 'email'];
+        $types = ['linkedin', 'twitter', 'email', 'case_study', 'strategy_deck', 'guide'];
         
         // Fetch news context once to avoid redundant DB queries in the loop
         $newsContext = $this->getNewsContext();
@@ -111,6 +111,29 @@ class GenerateDailyContentJob implements ShouldQueue
             Then 400-500 words. Structure: context → problem → SCRYPT solution → data → CTA.
             If today's market context is relevant, open with it as the news hook.
             Authoritative tone. No fluff.",
+
+            'case_study' => "Write an institutional case study for SCRYPT.
+            {$segmentFocus}
+            Today is {$day} — {$context}{$newsContext}
+            Requirements: Format as a Markdown document. Structure: 
+            ## The Problem
+            ## The SCRYPT Solution
+            ## The Outcome
+            Include real data points (\$25B+ volume, 300+ clients, 40+ jurisdictions, Gauntlet DeFi integration).
+            Authoritative, data-driven tone.",
+
+            'strategy_deck' => "Write the outline and narrative copy for an institutional Strategy Deck regarding SCRYPT.
+            {$segmentFocus}
+            Today is {$day} — {$context}{$newsContext}
+            Requirements: Format as a Markdown document with 'Slide 1:', 'Slide 2:', etc. 
+            Highlight FINMA regulation, deep liquidity, and execution quality. 
+            Include a clear CTA for allocations or API integration.",
+
+            'guide' => "Write a comprehensive downloadable guide for SCRYPT.
+            {$segmentFocus}
+            Today is {$day} — {$context}{$newsContext}
+            Requirements: Format as a Markdown document. Provide deep, actionable insights on institutional crypto, regulation (FINMA/VQF), and market structure.
+            Tone: Executive, sharp, authoritative.",
 
             default    => "Write a LinkedIn post for SCRYPT about {$pillar->name}. {$context}{$newsContext}",
         };

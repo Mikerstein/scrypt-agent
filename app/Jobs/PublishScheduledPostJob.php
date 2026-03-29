@@ -31,11 +31,18 @@ class PublishScheduledPostJob implements ShouldQueue
         $content = $post->contentItem->content;
 
         try {
-            $platformPostId = match($post->platform) {
-                'twitter'  => (new TwitterService())->publish($content),
-                'linkedin' => (new LinkedInService())->publish($content),
-                default    => null,
-            };
+            if ($post->platform === 'email') {
+                // In production, we would map to a dynamic subscriber list
+                \Illuminate\Support\Facades\Mail::to('institutions@scrypt.swiss')
+                    ->send(new \App\Mail\NewsletterEmail($content));
+                $platformPostId = 'email-' . uniqid();
+            } else {
+                $platformPostId = match($post->platform) {
+                    'twitter'  => (new TwitterService())->publish($content),
+                    'linkedin' => (new LinkedInService())->publish($content),
+                    default    => null,
+                };
+            }
 
             $post->update([
                 'status'           => 'published',

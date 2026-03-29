@@ -31,6 +31,9 @@
                     <option value="linkedin">LinkedIn Post</option>
                     <option value="twitter">X Thread</option>
                     <option value="email">Email Newsletter</option>
+                    <option value="case_study">Case Study</option>
+                    <option value="strategy_deck">Strategy Deck</option>
+                    <option value="guide">Guide</option>
                 </select>
             </div>
             <div>
