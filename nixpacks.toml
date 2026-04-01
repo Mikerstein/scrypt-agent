@@ -15,13 +15,14 @@ nixPkgs = [
 cmds = [
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer",
-  "composer install --ignore-platform-reqs",
+  "chmod +x /usr/local/bin/composer",
+  "php /usr/local/bin/composer install --ignore-platform-reqs",
   "npm ci"
 ]
 
 [phases.build]
 cmds = [
-  "composer install --no-dev --optimize-autoloader"
+  "php /usr/local/bin/composer install --no-dev --optimize-autoloader"
 ]
 
 [start]
