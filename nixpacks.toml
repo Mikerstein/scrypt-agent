@@ -8,8 +8,15 @@ nixPkgs = [
   "php82Extensions.curl",
   "php82Extensions.zip",
   "php82Extensions.tokenizer",
-  "php82Extensions.ctype",
-  "composer"
+  "php82Extensions.ctype"
+]
+
+[phases.install]
+cmds = [
+  "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
+  "curl -sS https://getcomposer.org/installer | php82 -- --install-dir=/usr/local/bin --filename=composer",
+  "composer install --ignore-platform-reqs",
+  "npm ci"
 ]
 
 [phases.build]
